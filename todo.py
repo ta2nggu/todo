@@ -19,9 +19,11 @@ IS_MAC = platform.system() == "Darwin"
 IS_WIN = platform.system() == "Windows"
 
 # Data & Config Locations
+# Primary: Save tasks.json directly inside the project directory so it syncs with Git
+BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = Path.home() / ".flow_todo"
-DATA_FILE = DATA_DIR / "tasks.json"
-CONFIG_FILE = DATA_DIR / "config.json"
+DATA_FILE = BASE_DIR / "tasks.json"
+CONFIG_FILE = BASE_DIR / "config.json"
 
 STARTUP_FOLDER_WIN = Path(os.environ.get("APPDATA", "")) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
 VBS_STARTUP_PATH = STARTUP_FOLDER_WIN / "TaskFlow.vbs"
@@ -266,7 +268,7 @@ class TaskManager:
             self.save()
 
     def save(self):
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self.filepath.parent.mkdir(parents=True, exist_ok=True)
         with open(self.filepath, "w", encoding="utf-8") as f:
             json.dump({"tasks": self.tasks}, f, ensure_ascii=False, indent=2)
 
@@ -399,7 +401,7 @@ class TodoApp(tk.Tk):
         return {"always_on_top": True, "geometry": "520x680", "theme": "light"}
 
     def _save_config(self):
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
         try:
             self.config["geometry"] = self.winfo_geometry()
             self.config["always_on_top"] = self.always_on_top
